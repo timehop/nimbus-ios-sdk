@@ -1,6 +1,7 @@
 // swift-tools-version: 5.6
 
 import PackageDescription
+import Foundation
 
 let package = Package(
     name: "NimbusSDK",
@@ -25,7 +26,6 @@ let package = Package(
                 "NimbusRenderKit",
                 "NimbusRenderVideoKit",
                 "NimbusCoreKit",
-                "GoogleInteractiveMediaAds",
             ]),
         .library(
             name: "NimbusRequestKit",
@@ -41,7 +41,7 @@ let package = Package(
             targets: ["NimbusLiveRampKit"]),
         .library(
             name: "NimbusRenderOMKit",
-            targets: ["NimbusRenderOMKit", "OMSDKAdsbynimbus"]),
+            targets: ["NimbusRenderOMKit"]),
         .library(
             name: "NimbusRequestAPSKit",
             targets: ["NimbusRequestAPSKit"]),
@@ -52,12 +52,13 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/faktorio/ats-sdk-ios-prod", from: "1.4.0"),
         .package(url: "https://github.com/googleads/swift-package-manager-google-mobile-ads", from: "9.12.0"),
+        .package(url: "https://github.com/timehop/nimbus-ios-dependencies", branch: "main"),
     ],
     targets: [
         .target(
             name: "NimbusGAMKit",
             dependencies: [
-                "NimbusKit",
+                "NimbusKit",  "NimbusCoreKit",
                 .product(name: "GoogleMobileAds", package: "swift-package-manager-google-mobile-ads")]),
         .testTarget(
             name: "NimbusGAMKitTests",
@@ -65,29 +66,58 @@ let package = Package(
         .target(
             name: "NimbusLiveRampKit",
             dependencies: [
-                "NimbusRequestKit",
+                "NimbusRequestKit", "NimbusCoreKit",
                 .product(name: "LRAtsSDK", package: "ats-sdk-ios-prod")]),
         .testTarget(
             name: "NimbusLiveRampKitTests",
             dependencies: ["NimbusLiveRampKit"]),
         .target(
             name: "NimbusFANKit",
-            dependencies: ["NimbusRenderKit", "NimbusRequestKit", "FBAudienceNetwork"]),
+            dependencies: ["NimbusRenderKit", "NimbusRequestKit", "NimbusCoreKit", .product(name: "FBAudienceNetwork", package: "nimbus-ios-dependencies")]),
         .testTarget(
             name: "NimbusFANKitTests",
             dependencies: ["NimbusFANKit"]),
         .target(
             name: "NimbusRequestAPSKit",
-            dependencies: ["NimbusRequestKit", "DTBiOSSDK"]),
+            dependencies: ["NimbusRequestKit", "NimbusCoreKit", .product(name: "DTBiOSSDK", package: "nimbus-ios-dependencies")]),
         .testTarget(
             name: "NimbusRequestAPSKitTests",
             dependencies: ["NimbusRequestAPSKit"]),
         .target(
             name: "NimbusUnityKit",
-            dependencies: ["NimbusRenderKit", "NimbusRequestKit", "UnityAds"]),
+            dependencies: ["NimbusRenderKit", "NimbusRequestKit", "NimbusCoreKit", .product(name: "DTBiOSSDK", package: "nimbus-ios-dependencies")]),
         .testTarget(
             name: "NimbusUnityKitTests",
             dependencies: ["NimbusUnityKit"]),
+    ]
+)
+
+let sdkPath = Context.environment["NIMBUS_IOS_PATH"] ?? "nimbus-ios"
+
+if FileManager.default.fileExists(atPath: sdkPath) {
+    package.targets += [
+        .target(name: "NimbusCoreKit", path: sdkPath + "/Sources/NimbusCoreKit"),
+        .target(name: "NimbusRenderKit",
+            dependencies: ["NimbusCoreKit"],
+            path: sdkPath + "/Sources/NimbusRenderKit"),
+        .target(name: "NimbusRenderOMKit",
+            dependencies: ["NimbusRenderKit", "OMSDKAdsbynimbus"],
+            path: sdkPath + "/Sources/NimbusRenderOMKit"),
+        .target(name: "NimbusRenderStaticKit",
+            dependencies: ["NimbusRenderKit"],
+            path: sdkPath + "/Sources/NimbusRenderStaticKit"),
+        .target(name: "NimbusRenderVideoKit",
+            dependencies: ["NimbusRenderKit", "GoogleInteractiveMediaAds"],
+            path: sdkPath + "/Sources/NimbusRenderVideoKit"),
+        .target(name: "NimbusRequestKit",
+            dependencies: ["NimbusCoreKit"],
+            path: sdkPath + "/Sources/NimbusRequestKit"),
+        .target(name: "NimbusKit",
+            dependencies: ["NimbusRequestKit", "NimbusRenderKit"],
+            path: sdkPath + "/Sources/NimbusKit"),
+    ]
+} else {
+    package.targets += [
         .binaryTarget(
             name: "NimbusKit",
             url: "https://adsbynimbus-public.s3.amazonaws.com/iOS/sdks/2.1.2/NimbusKit-2.1.2.zip",
@@ -116,26 +146,5 @@ let package = Package(
             name: "NimbusCoreKit",
             url: "https://adsbynimbus-public.s3.amazonaws.com/iOS/sdks/2.1.2/NimbusCoreKit-2.1.2.zip",
             checksum: "6f631fd8dfe5ca38e04629def85660724224ff6b6ff390f93cdd88df0d19e547"),
-        .binaryTarget(
-            name: "GoogleInteractiveMediaAds",
-            url: "https://imasdk.googleapis.com/native/downloads/ima-ios-v3.16.3.zip",
-            checksum: "049bac92551b50247ea14dcbfde9aeb99ac2bea578a74f67c6f3e781d9aca101"),
-        .binaryTarget(
-            name: "OMSDKAdsbynimbus",
-            url: "https://adsbynimbus-public.s3.amazonaws.com/iOS/external/omsdk/1.4.0/omsdk-adsbynimbus-1.4.0.zip",
-            checksum: "736e996210bbd959fb563421b6328c4027b3349bc20772f3d7c83c4f426e3a94"),
-        .binaryTarget(
-            name: "DTBiOSSDK",
-            url: "https://mdtb-sdk-packages.s3.us-west-2.amazonaws.com/iOS_APS_SDK/APS_iOS_SDK-4.5.5.zip",
-            checksum: "0aaf4f92ace01441501f45a9d7fd4614d5e496ab925f6b84b4a1d96e9a65ba29"),
-        .binaryTarget(
-            name: "FBAudienceNetwork",
-            url: "https://adsbynimbus-public.s3.amazonaws.com/iOS/external/facebook/6.12.0/FBAudienceNetwork.zip",
-            checksum: "4bf37ee5949de007349d85b069da1095a30e82e696e72642dfe117aba08a86a2"
-        ),
-        .binaryTarget(
-            name: "UnityAds",
-            url: "https://github.com/Unity-Technologies/unity-ads-ios/releases/download/4.4.1/UnityAds.zip",
-            checksum: "8196b13a0a5eae6ba817e2e7fc9096a584f22aedb1958980d2064955e448d5ad"),
     ]
-)
+}
