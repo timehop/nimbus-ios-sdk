@@ -1,0 +1,3 @@
+[submodule "Sample"]
+	path = Sample
+	url = git@github.com:timehop/nimbus-ios-sample.git
