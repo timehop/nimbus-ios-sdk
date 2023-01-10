@@ -8,28 +8,22 @@ let package = Package(
     products: [
         .library(
             name: "NimbusKit",
-            targets: ["NimbusKit", "NimbusRenderKit", "NimbusRequestKit", "NimbusCoreKit"]),
+            targets: ["NimbusKit", "Wrapper"]),
         .library(
             name: "NimbusRenderKit",
-            targets: ["NimbusRenderKit", "NimbusCoreKit"]),
+            targets: ["NimbusRenderKit", "NimbusCoreKit", "Wrapper"]),
+        .library(
+            name: "NimbusRenderOMKit",
+            targets: ["NimbusRenderOMKit", "OMSDK_Adsbynimbus", "NimbusRenderKit", "Wrapper"]),
         .library(
             name: "NimbusRenderStaticKit",
-            targets: [
-                "NimbusRenderKit",
-                "NimbusRenderStaticKit",
-                "NimbusCoreKit",
-            ]),
+            targets: ["NimbusRenderStaticKit", "NimbusRenderKit", "Wrapper"]),
         .library(
             name: "NimbusRenderVideoKit",
-            targets: [
-                "NimbusRenderKit",
-                "NimbusRenderVideoKit",
-                "NimbusCoreKit",
-                "GoogleInteractiveMediaAds",
-            ]),
+            targets: ["NimbusRenderVideoKit", "NimbusRenderKit", "GoogleInteractiveMediaAds", "Wrapper"]),
         .library(
             name: "NimbusRequestKit",
-            targets: ["NimbusRequestKit", "NimbusCoreKit"]),
+            targets: ["NimbusRequestKit", "NimbusCoreKit", "Wrapper"]),
         .library(
             name: "NimbusGAMKit",
             targets: ["NimbusGAMKit"]),
@@ -39,9 +33,6 @@ let package = Package(
         .library(
             name: "NimbusLiveRampKit",
             targets: ["NimbusLiveRampKit"]),
-        .library(
-            name: "NimbusRenderOMKit",
-            targets: ["NimbusRenderOMKit", "OMSDKAdsbynimbus"]),
         .library(
             name: "NimbusRequestAPSKit",
             targets: ["NimbusRequestAPSKit"]),
@@ -54,6 +45,7 @@ let package = Package(
         .package(url: "https://github.com/googleads/swift-package-manager-google-mobile-ads", from: "9.12.0"),
     ],
     targets: [
+        .target(name: "Wrapper"),
         .target(
             name: "NimbusGAMKit",
             dependencies: [
@@ -121,9 +113,9 @@ let package = Package(
             url: "https://imasdk.googleapis.com/native/downloads/ima-ios-v3.16.3.zip",
             checksum: "049bac92551b50247ea14dcbfde9aeb99ac2bea578a74f67c6f3e781d9aca101"),
         .binaryTarget(
-            name: "OMSDKAdsbynimbus",
-            url: "https://adsbynimbus-public.s3.amazonaws.com/iOS/external/omsdk/1.4.0/omsdk-adsbynimbus-1.4.0.zip",
-            checksum: "736e996210bbd959fb563421b6328c4027b3349bc20772f3d7c83c4f426e3a94"),
+            name: "OMSDK_Adsbynimbus",
+            url: "https://adsbynimbus-public.s3.amazonaws.com/iOS/external/omsdk/1.4.2/omsdk-adsbynimbus-1.4.2.zip",
+            checksum: "d42443a5d19a34418976945d8afcd11f25d471fa3178f80eba1c3f6035c0ad24"),
         .binaryTarget(
             name: "DTBiOSSDK",
             url: "https://mdtb-sdk-packages.s3.us-west-2.amazonaws.com/iOS_APS_SDK/APS_iOS_SDK-4.5.5.zip",
